@@ -4,6 +4,14 @@ use wasm_bindgen::prelude::*;
 use js_sys::Math;
 use fixedbitset::FixedBitSet;
 
+extern crate web_sys;
+
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )*).into());
+    };
+}
+
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
 #[cfg(feature = "wee_alloc")]
@@ -78,7 +86,8 @@ impl Universe {
                 let idx = self.get_index(row, col);
                 let cell = self.cells[idx];
                 let live_neighbors = self.live_neighbor_count(row, col);
-
+                
+                
                 next.set(idx, match (cell, live_neighbors) {
                     (true, x) if x < 2 => false,
                     (true, 2) | (true, 3) => true,
@@ -86,12 +95,23 @@ impl Universe {
                     (false, 3) => true,
                     (otherwise, _) => otherwise,
                 });
+
+                if cell != next[idx] {
+                    log!(
+                        "Cell[{}, {}] state {} -> {} with {} live neighbors",
+                        row, col,
+                        cell as u8,
+                        next[idx] as u8,
+                        live_neighbors
+                    );
+                }
             }
         }
         self.cells = next;
     }
 
     pub fn new() -> Universe {
+        utils::set_panic_hook();
         let width:u32 = 64;
         let height = 64;
         let size = (width * height) as usize;
@@ -105,6 +125,7 @@ impl Universe {
     }
 
     pub fn new_spaceship() -> Universe {
+        utils::set_panic_hook();
         let width:u32 = 64;
         let height = 64;
         let size = (width * height) as usize;
@@ -124,6 +145,7 @@ impl Universe {
     }
 
     pub fn new_random() -> Universe {
+        utils::set_panic_hook();
         let width = 64;
         let height = 64;
         let size = (width * height) as usize;
@@ -136,6 +158,7 @@ impl Universe {
                 cells.set(i, false);
             }
         }
+        // panic!("Testing panic in Universe::new_random()");
         Universe {width, height, cells}
     }
 
