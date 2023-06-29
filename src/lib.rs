@@ -162,6 +162,63 @@ impl Universe {
         Universe {width, height, cells}
     }
 
+    pub fn reset_dead(&mut self) {
+        self.cells.clear();
+    }
+
+    pub fn reset_random(&mut self) {
+        let size = (self.width * self.height) as usize;
+        for i in 0..size {
+            if Math::random() < 0.5 {
+                self.cells.set(i, true);
+            } else {
+                self.cells.set(i, false);
+            }
+        }
+    }
+
+    pub fn insert_glider(&mut self, row: u32, col: u32) {
+        let glider_se = [
+            (1,0),(2,1),
+            (0,2),(1,2),(2,2)];
+        let glider_size = (3,3);
+        if row + glider_size.0 > self.height || 
+            col + glider_size.1 > self.width {
+            log!("Cannot insert glider on borders.");
+        } else {
+            for (r,c) in glider_se {
+                let idx = self.get_index(row+r, col+c);
+                self.cells.set(idx, true);
+            }
+
+        }
+    }
+
+    pub fn insert_pulsar(&mut self, row: u32, col: u32) {
+        let pulsar = [
+            // Horizontal lines
+            (1,3),(1,4),(1,5),(1,9),(1,10),(1,11),
+            (6,3),(6,4),(6,5),(6,9),(6,10),(6,11),
+            (8,3),(8,4),(8,5),(8,9),(8,10),(8,11),
+            (13,3),(13,4),(13,5),(13,9),(13,10),(13,11),
+            // Vertical lines
+            (3,1),(4,1),(5,1),(9,1),(10,1),(11,1),
+            (3,6),(4,6),(5,6),(9,6),(10,6),(11,6),
+            (3,8),(4,8),(5,8),(9,8),(10,8),(11,8),
+            (3,13),(4,13),(5,13),(9,13),(10,13),(11,13),
+            ];
+        let size = (15,15);
+        if row + size.0 > self.height || 
+            col + size.1 > self.width {
+            log!("Cannot insert pulsar on borders.");
+        } else {
+            for (r,c) in pulsar {
+                let idx = self.get_index(row+r, col+c);
+                self.cells.set(idx, true);
+            }
+
+        }
+    }
     // pub fn render(&self) -> String {
         // self.to_string()
     // }
@@ -186,6 +243,11 @@ impl Universe {
     }
     pub fn cells(&self) -> *const u32 {
         self.cells.as_slice().as_ptr()
+    }
+
+    pub fn toggle_cell(&mut self, row: u32, col: u32) {
+        let idx = self.get_index(row, col);
+        self.cells.toggle(idx);
     }
 }
 
