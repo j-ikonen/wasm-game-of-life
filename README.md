@@ -1,8 +1,6 @@
 ## Rust and WebAssembly
 Following along with the exercises and examples from Rust and WebAssembly book.
 
-bugs:
-pause does not work with delayed animation frames.
 
 <div align="center">
 
